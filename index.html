@@ -1,0 +1,220 @@
+	<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv ="X-UA-Compatible" content ="IE=EmulateIE7"/>
+	<title>流程设计器</title>
+	<script id="jquery_164" type="text/javascript" class="library" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.6.4/jquery.js"></script>	 
+	<script type="text/javascript" src="vmlgraphic.js"></script>
+	<script type="text/javascript" src="flowgraphic.js"></script>
+<style type="text/css">	
+		.drag
+		{
+			cursor: pointer;
+		}
+		#toolbar button
+		{
+			margin:4px 5px;
+		}
+		.logpanel
+		{
+			position: absolute;
+			right: 10px;
+			top:5px;
+			display: block;
+			width: 350px;
+			height: 600px;
+			overflow: auto;
+			border: solid 1px #ccc;
+		}
+		.logpanel div
+		{			
+			padding: 2px 5px;
+		}
+	</style>  
+
+		<style>/*reset start*/
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+ margin: 0;
+ padding: 0;
+ border: 0;
+ outline: 0;
+ font-size: 100%;
+ vertical-align: baseline;
+ background: transparent;
+ font-size: 12px;
+}
+body {
+ line-height: 1;
+}
+ol, ul {
+ list-style: none;
+}
+blockquote, q {
+ quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+ content: '';
+ content: none;
+}
+/* remember to define focus styles! */
+:focus {
+ outline: 0;
+}
+/* remember to highlight inserts somehow! */
+ins {
+ text-decoration: none;
+}
+del {
+ text-decoration: line-through;
+}
+/* tables still need 'cellspacing="0"' in the markup */
+table {
+ border-collapse: collapse;
+ border-spacing: 0;
+}
+/*reset end*/
+
+.clear
+{
+	clear: both;
+}
+.toolbar button
+{
+	float:left;
+	padding: 2px 2px;
+}
+.toolbar button.tlink 
+{	cursor: pointer;
+	height:25px;
+	width :25px;
+	background: url("tlink.png") no-repeat center center;
+	border: none;
+}
+.toolbar button.linkchecked
+{
+	border: solid 1px #2D932D;
+}
+
+.canvas
+{
+	background: url("grid.gif") repeat  -7px -7px;
+	width:10000px;
+	height:10000px;
+	border: solid 1px #ebebeb;
+}
+v\:* { behavior: url(#default#VML);} 
+o\:* { behavior: url(#default#VML);}
+.flowelemnt
+{	
+	position:absolute;	
+	left:100;
+	top:50;
+	font-size:12px;	
+	text-align:center;
+}
+.flowdrag
+{
+ 	cursor: pointer;
+}
+.activity{
+	padding:15px 5px;
+	width: 100px;
+	height: 40px;
+}
+.judge
+{
+	padding:25px 5px;
+}
+.line
+{
+	padding:30px 0px;
+}
+</style>
+
+	<script type="text/javascript">
+	 $.fn.noSelect = function(p) { //no select plugin by me :-)
+        if (p == null)
+            prevent = true;
+        else
+            prevent = p;
+
+        if (prevent) {
+
+            return this.each(function() {
+                if ($.browser.msie || $.browser.safari) $(this).bind('selectstart', function() { return false; });
+                else if ($.browser.mozilla) {
+                    $(this).css('MozUserSelect', 'none');
+                    $('body').trigger('focus');
+                }
+                else if ($.browser.opera) $(this).bind('mousedown', function() { return false; });
+                else $(this).attr('unselectable', 'on');
+            });
+
+        } else {
+
+
+            return this.each(function() {
+                if ($.browser.msie || $.browser.safari) $(this).unbind('selectstart');
+                else if ($.browser.mozilla) $(this).css('MozUserSelect', 'inherit');
+                else if ($.browser.opera) $(this).unbind('mousedown');
+                else $(this).removeAttr('unselectable', 'on');
+            });
+
+        };
+
+    }; //end noSelect
+	</script>	
+</head>
+<body>	
+	<div id="toolbar" class="toolbar">
+		<button id="btnAddStartNode">添加开始节点</button> 
+		<button id="btnAddTaskNode">添加任务节点</button> 
+		<button id="btnAddEndNode">添加结束节点</button>  
+		<button id="btnAddJudgeNode">添加判断节点</button> 		
+		按住Ctrl键 可画连线
+	</div>
+	<div class="clear"></div>
+	<div id="canvasContainer" class="canvas">	
+		
+	</div>	
+	
+	<script type="text/javascript">
+			var fg = new flowgraphic();
+    	fg.init("#canvasContainer",{width:10000,heigth:10000}); //size 暂时无用    	
+    	$("#canvasContainer").noSelect();//画布不能被选择
+    	$("#btnAddStartNode").click(function(){
+    		fg.draw_startativity("开始节点");
+    	});
+    	$("#btnAddTaskNode").click(function(){
+    		fg.draw_processactivity("任务节点");
+    	});
+    	$("#btnAddEndNode").click(function(){
+    		fg.draw_endativity("结束节点");
+    	});
+    	$("#btnAddJudgeNode").click(function(){
+    		fg.draw_judge("判断节点");
+    	});  
+
+        $(document).keydown(function(e){
+            if(e.keyCode ==17)
+            {
+                fg.set_drag_mode("link");
+            }           
+        }).keyup(function(e){
+            if(e.keyCode ==17)
+            {
+                fg.set_drag_mode("move");
+            }    
+        });
+	</script>
+</body>
+</html>
